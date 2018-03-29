@@ -40,19 +40,19 @@ defmodule Bow.Mixfile do
   defp deps do
     [
       {:plug,     "~> 1.0"},
-      {:tesla,    "~> 0.7", github: "teamon/tesla", branch: "master"},
+      {:tesla,    "~> 0.7"},
 
-      {:ecto,       ">= 2.0.0 and < 2.2.0", optional: true},
-      {:erlexec,    "~> 1.7.0", optional: true},
-      {:ex_aws,     "~> 1.1.4", optional: true},
-      {:sweet_xml,  "~> 0.6.5", optional: true},
+      {:ecto,       "~> 2.2", optional: true},
+      {:erlexec,    "~> 1.7", optional: true},
+      {:ex_aws,     "~> 1.1", optional: true},
+      {:sweet_xml,  "~> 0.6", optional: true},
 
       # testing & docs
-      {:postgrex,       ">= 0.0.0",  only: :test},
-      {:coverex,        "~> 1.4.10", only: :test},
-      {:ex_doc,         "~> 0.16.1", only: :dev},
-      {:mix_test_watch, "~> 0.5.0",  only: :dev},
-      {:dialyxir,       "~> 0.5.1",  only: :dev}
+      {:postgrex,       ">= 0.0.0",only: :test},
+      {:coverex,        "~> 1.4",  only: :test},
+      {:ex_doc,         "~> 0.16", only: :dev},
+      {:mix_test_watch, "~> 0.5",  only: :dev},
+      {:dialyxir,       "~> 0.5",  only: :dev}
     ]
   end
 
