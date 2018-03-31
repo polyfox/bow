@@ -32,65 +32,25 @@ defmodule Bow.Exec do
 
   """
   @spec exec(Bow.t, Bow.t, [String.t], keyword) :: {:ok, Bow.t} | {:error, any}
-  def exec(source, target, command, opts \\ []) do
+  def exec(source, target, program, command, opts \\ []) do
     timeout = opts[:timeout] || default_timeout()
+    # TODO: use a task that times out with yield_many
 
     source_path = source.path
     target_path = Plug.Upload.random_file!("bow-exec") <> target.ext
 
-    cmd = command
-      |> Enum.map(fn
+    cmd = Enum.map(command, fn
         {:input, idx} when is_integer(idx) -> "#{source_path}[#{idx}]"
         :input -> source_path
         :output -> target_path
         arg -> arg
       end)
-      |> Enum.map(&to_charlist/1)
 
-    trapping fn ->
-      case :exec.run_link(cmd, [stdout: self(), stderr: self()]) do
-        {:ok, pid, ospid} ->
-          case wait_for_exit(pid, ospid, timeout) do
-            {:ok, output} ->
-              if File.exists?(target_path) do
-                {:ok, Bow.set(target, :path, target_path)}
-              else
-                {:error, reason: :file_not_found, output: output, exit_code: 0, cmd: cmd}
-              end
-
-            {:error, exit_code, output} ->
-              {:error, output: output, exit_code: exit_code, cmd: cmd}
-          end
-        error ->
-          error
-      end
-    end
-  end
-
-  defp trapping(fun) do
-    trap = Process.flag(:trap_exit, true)
-    result = fun.()
-    Process.flag(:trap_exit, trap)
-    result
-  end
-
-  defp wait_for_exit(pid, ospid, timout) do
-    receive do
-      {:EXIT, ^pid, :normal}              -> {:ok, receive_output(ospid)}
-      {:EXIT, ^pid, {:exit_status, code}} -> {:error, code, receive_output(ospid)}
-    after
-      timout ->
-        :exec.stop_and_wait(pid, 2000)
-        {:error, :timeout, receive_output(ospid)}
-    end
-  end
-
-  defp receive_output(ospid, output \\ []) do
-    receive do
-      {:stdout, ^ospid, data} -> receive_output(ospid, [output, data])
-      {:stderr, ^ospid, data} -> receive_output(ospid, [output, data])
-    after
-      0 -> output |> to_string
+    case System.cmd(program, cmd, stderr_to_stdout: true) do
+      {_, 0} ->
+        {:ok, Bow.set(target, :path, target_path)}
+      {error_message, _exit_code} ->
+        {:error, error_message}
     end
   end
 end
