@@ -50,7 +50,11 @@ defmodule Bow.Storage.S3 do
       ExAws.S3.put_object(bucket(), Path.join(dir, name), "")
       |> ExAws.request()
       |> case do
-        {:ok, %{status_code: 200}} -> :ok
+        {:ok, %{status_code: 200}} ->
+          # hacky fix permission
+          ExAws.S3.put_object_acl(bucket(), Path.join(dir, name), acl: :public_read)
+          |> ExAws.request!
+          :ok
         error -> error
       end
     else
@@ -59,7 +63,11 @@ defmodule Bow.Storage.S3 do
       |> ExAws.S3.upload(bucket(), Path.join(dir, name), opts)
       |> ExAws.request()
       |> case do
-        {:ok, %{status_code: 200}} -> :ok
+        {:ok, %{status_code: 200}} ->
+          # hacky fix permission
+          ExAws.S3.put_object_acl(bucket(), Path.join(dir, name), acl: :public_read)
+          |> ExAws.request!
+          :ok
         error -> error
       end
     end
