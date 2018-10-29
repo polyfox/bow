@@ -2,7 +2,6 @@ use Mix.Config
 
 if Mix.env == :test do
   config :bow, Bow.Repo,
-    adapter:  Ecto.Adapters.Postgres,
     username: "teamon",
     password: "",
     database: "bow_ecto_test",

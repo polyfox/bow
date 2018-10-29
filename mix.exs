@@ -16,13 +16,8 @@ defmodule Bow.Mixfile do
 
   def application do
     [
-      applications: [:logger, :plug, :tesla] ++ applications(Mix.env)
+      extra_applications: [:logger] ++ applications(Mix.env)
     ]
-
-    # TODO: Uncomment wneh dropping support for elixir 1.3
-    # [
-    #   extra_applications: [:logger] ++ applications(Mix.env)
-    # ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -42,7 +37,7 @@ defmodule Bow.Mixfile do
       {:plug,     "~> 1.0"},
       {:tesla,    "~> 0.7"},
 
-      {:ecto,       "~> 2.2", optional: true},
+      {:ecto_sql,   "~> 3.0-rc.0", optional: true},
       {:ex_aws,     "~> 2.0", optional: true},
       {:ex_aws_s3,  "~> 2.0", optional: true},
       {:sweet_xml,  "~> 0.6", optional: true},
